@@ -159,22 +159,32 @@ async function uploadFile(key: string, filePath: string) {
     const ContentType = contentTypeHandler(filePath);
 
     if (file.length > TEN_MB) {
-        // Upload to R2.
-        await tryOp10Times(async () => {
-            await s3Client.send(
-                new PutObjectCommand({
-                    Bucket: bucket,
-                    Key: key,
-                    Body: file,
-                    ContentType,
-                }),
-            );
-        });
+        // Upload to R2, and remove any stale KV entry (file may have grown past 10MB).
+        await Promise.all([
+            tryOp10Times(async () => {
+                await s3Client.send(
+                    new PutObjectCommand({
+                        Bucket: bucket,
+                        Key: key,
+                        Body: file,
+                        ContentType,
+                    }),
+                );
+            }),
+            kvDelete(key),
+        ]);
     } else {
-        // Upload to Workers KV.
-        await tryOp10Times(async () => {
-            await kvPut(key, file, ContentType);
-        });
+        // Upload to Workers KV, and remove any stale R2 entry (file may have shrunk below 10MB).
+        await Promise.all([
+            tryOp10Times(async () => {
+                await kvPut(key, file, ContentType);
+            }),
+            tryOp10Times(async () => {
+                await s3Client.send(
+                    new DeleteObjectCommand({ Bucket: bucket, Key: key }),
+                );
+            }),
+        ]);
     }
 }
 
