@@ -127,7 +127,7 @@ function contentTypeHandler(filePath: string) {
     return mime.getType(filePath) ?? undefined;
 }
 
-let fileHashes: { [key: string]: string } = {};
+let fileHashes: { [key: string]: string | [string, boolean] } = {};
 const writtenKeys = new Set<string>();
 
 async function tryOp10Times(fn: () => Promise<void>) {
@@ -145,21 +145,36 @@ async function tryOp10Times(fn: () => Promise<void>) {
 
 const TEN_MB = 10 * 1024 * 1024;
 
+function checkIfFileIsInHashes(
+    key: string,
+): [string | undefined, boolean | undefined] {
+    const hash = fileHashes[key];
+    if (typeof hash === "string") {
+        return [hash, undefined];
+    }
+    if (!hash) {
+        return [undefined, undefined];
+    }
+    return hash;
+}
+
 async function uploadFile(key: string, filePath: string) {
     // This is before the hash check so we don't destroy the file if its been written in the past.
     writtenKeys.add(key);
 
     const file = await fs.readFile(filePath);
     const hash = crypto.createHash("sha256").update(file).digest("hex");
-    if (fileHashes[key] === hash) {
+    const [existingHash, inKv] = checkIfFileIsInHashes(key);
+    if (existingHash === hash) {
         return;
     }
-    fileHashes[key] = hash;
+    const bigFile = file.length > TEN_MB;
+    fileHashes[key] = [hash, !bigFile];
 
     const ContentType = contentTypeHandler(filePath);
 
-    if (file.length > TEN_MB) {
-        // Upload to R2, and remove any stale KV entry (file may have grown past 10MB).
+    if (bigFile) {
+        // Upload to R2, and remove any stale KV entry (file may have grown past 10MB) if it was in KV.
         await Promise.all([
             tryOp10Times(async () => {
                 await s3Client.send(
@@ -171,19 +186,28 @@ async function uploadFile(key: string, filePath: string) {
                     }),
                 );
             }),
-            kvDelete(key),
+            inKv !== false ? kvDelete(key) : Promise.resolve(),
         ]);
     } else {
-        // Upload to Workers KV, and remove any stale R2 entry (file may have shrunk below 10MB).
+        // Upload to Workers KV, and remove any stale R2 entry (file may have shrunk below 10MB) if it was in R2.
         await Promise.all([
             tryOp10Times(async () => {
                 await kvPut(key, file, ContentType);
             }),
-            tryOp10Times(async () => {
-                await s3Client.send(
-                    new DeleteObjectCommand({ Bucket: bucket, Key: key }),
-                );
-            }),
+            inKv
+                ? Promise.resolve()
+                : tryOp10Times(async () => {
+                      try {
+                          await s3Client.send(
+                              new DeleteObjectCommand({
+                                  Bucket: bucket,
+                                  Key: key,
+                              }),
+                          );
+                      } catch (e) {
+                          if (!(e instanceof NoSuchKey)) throw e;
+                      }
+                  }),
         ]);
     }
 }
