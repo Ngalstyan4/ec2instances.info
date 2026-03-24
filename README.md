@@ -1,8 +1,6 @@
 # EC2Instances.info
 
 [![uses cloudflare](https://img.shields.io/badge/uses-Cloudflare-orange)](https://cloudflare.com)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
-[![python style: black](https://img.shields.io/badge/python%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 
 ![Vantage Picture](https://uploads-ssl.webflow.com/5f9ba05ba40d6414f341df34/5f9bb1764b6670c6f7739564_moutain-scene.svg)
 
@@ -35,15 +33,15 @@ You then need to either:
 
 To start the development server, cd into the `next` directory and run `nvm use` (run `nvm install` before this if the Node version changed or this is first usage). From here, run `npm ci`, for your first ever time run `npm run init`, and then `npm run dev`. This will start the Next development server. Before you make a pull request, it is suggested you run `npm run check-types` to find any type issues. This will be done before build by the CI, but it does tighten development cycles to do it here.
 
-When you make changes, it is suggested to use the recommended VS Code extensions if that is your editor. If not, tell your editor to auto-format based on the Prettier configuration in the root. Before you make a PR, you should run `make format` in the root to make sure the formatting is correct for the version of Black/Prettier we use.
+When you make changes, it is suggested to use the recommended VS Code extensions if that is your editor. If not, tell your editor to auto-format based on the Prettier configuration in the root. Before you make a PR, you should run `make format` in the root to make sure the formatting is correct for the version of gofmt/Prettier we use.
 
 Make sure your pull requests target `develop` since this is our staging. When it is merged into `main`, that is production.
 
 ### Scraping the data locally
 
-You'll need to provide credentials so that boto can access the AWS API. Options for setting this up are described in the [boto docs](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html).
+The scraper is written in Go and fetches data from AWS, Azure, and GCP APIs. You'll need credentials for each provider.
 
-Ensure that your IAM user has at least the following permissions:
+**AWS:** Ensure your IAM user has at least the following permissions:
 
 ```json
 {
@@ -62,9 +60,13 @@ Ensure that your IAM user has at least the following permissions:
 }
 ```
 
-When you have made these credentials, go ahead and store them somewhere safe as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` (`.env` is gitignored), and then you will want to fetch all of the data. [You will also need to setup Azure!](./docs/setting-up-azure.md)
+Set `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` (`.env` is gitignored).
 
-Now go ahead and grab yourself a cup of tea or coffee because this will take 20-30 minutes. You only need to run this when the Python is changed in a way that alters the data or there is new API data available you want to test against.
+**Azure:** Set `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, and `AZURE_SUBSCRIPTION_ID`. [See the Azure setup guide.](./docs/setting-up-azure.md)
+
+**GCP:** Set `GCP_PROJECT_ID`, `GCP_CLIENT_EMAIL`, and `GCP_PRIVATE_KEY`. [See the GCP setup guide.](./docs/setting-up-gcp.md)
+
+Once credentials are in place, run `./fetch_data.sh` from the repository root. You only need to run this when the scraper is changed in a way that alters the data or there is new API data available you want to test against.
 
 ## Building a full release
 
@@ -74,6 +76,8 @@ To build a full release, you will likely want to clone a clean slate version of 
 
 - `AWS_ACCESS_KEY_ID`: Follow the start of [Developing locally](#developing-locally) to get a AWS key with the correct permissions. This is the key ID for that.
 - `AWS_SECRET_ACCESS_KEY`: Follow the start of [Developing locally](#developing-locally) to get a AWS key with the correct permissions. This is the secret access key for that.
+- `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_SUBSCRIPTION_ID`: Azure credentials for the scraper. See [the Azure setup guide](./docs/setting-up-azure.md).
+- `GCP_PROJECT_ID`, `GCP_CLIENT_EMAIL`, `GCP_PRIVATE_KEY`: GCP credentials for the scraper. See [the GCP setup guide](./docs/setting-up-gcp.md).
 - `NEXT_PUBLIC_URL`: The public base URL for where the application lives. Probably `https://<hostname>/`.
 - `NEXT_PUBLIC_SENTRY_DSN`: **(Optional)** The DSN for Sentry. If you add this, the other items are required:
     - `SENTRY_ORG`: The Sentry organisation.
