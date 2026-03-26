@@ -115,9 +115,9 @@ func processYear(s string) *string {
 }
 
 var (
-	allUpfront = "allUpfront"
+	allUpfront     = "allUpfront"
 	partialUpfront = "partialUpfront"
-	noUpfront = "noUpfront"
+	noUpfront      = "noUpfront"
 )
 
 func processPurchaseOption(s string) *string {
