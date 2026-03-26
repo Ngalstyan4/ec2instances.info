@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"regexp"
 	"scraper/aws/awsutils"
 	"scraper/utils"
 	"strconv"
@@ -103,27 +104,34 @@ const (
 	DEDICATED_HOST_RESERVED_URL_BASE_CN = "https://calculator.amazonaws.cn/pricing/2.0/meteredUnitMaps/aws-cn/computesavingsplan/CNY/current/compute-ec2-calc/"
 )
 
-var RESERVED_TRANSLATIONS = map[string]string{
-	"1yrNoUpfront":          "yrTerm1Standard.noUpfront",
-	"1yrPartialUpfront":     "yrTerm1Standard.partialUpfront",
-	"1yrAllUpfront":         "yrTerm1Standard.allUpfront",
-	"1 yrNoUpfront":         "yrTerm1Standard.noUpfront",
-	"1 yrPartialUpfront":    "yrTerm1Standard.partialUpfront",
-	"1 yrPartial Upfront":   "yrTerm1Standard.partialUpfront",
-	"1 yrAllUpfront":        "yrTerm1Standard.allUpfront",
-	"1 yearNo Upfront":      "yrTerm1Standard.noUpfront",
-	"1 yearPartial Upfront": "yrTerm1Standard.partialUpfront",
-	"1 yearAll Upfront":     "yrTerm1Standard.allUpfront",
-	"3yrNoUpfront":          "yrTerm3Standard.noUpfront",
-	"3yrPartialUpfront":     "yrTerm3Standard.partialUpfront",
-	"3yrPartial Upfront":    "yrTerm3Standard.partialUpfront",
-	"3yrAllUpfront":         "yrTerm3Standard.allUpfront",
-	"3 yrNoUpfront":         "yrTerm3Standard.noUpfront",
-	"3 yrPartialUpfront":    "yrTerm3Standard.partialUpfront",
-	"3 yrAllUpfront":        "yrTerm3Standard.allUpfront",
-	"3 yearNo Upfront":      "yrTerm3Standard.noUpfront",
-	"3 yearPartial Upfront": "yrTerm3Standard.partialUpfront",
-	"3 yearAll Upfront":     "yrTerm3Standard.allUpfront",
+var YEAR_PART = regexp.MustCompile(`^(\d+) *(yr|year)$`)
+
+func processYear(s string) *string {
+	x := YEAR_PART.FindStringSubmatch(s)
+	if x == nil {
+		return nil
+	}
+	return &x[1]
+}
+
+var (
+	allUpfront = "allUpfront"
+	partialUpfront = "partialUpfront"
+	noUpfront = "noUpfront"
+)
+
+func processPurchaseOption(s string) *string {
+	s = strings.ToLower(strings.ReplaceAll(strings.TrimSpace(s), " ", ""))
+	switch s {
+	case "noupfront":
+		return &noUpfront
+	case "partialupfront":
+		return &partialUpfront
+	case "allupfront":
+		return &allUpfront
+	default:
+		return nil
+	}
 }
 
 func loadDedicatedHostReservedData(
@@ -161,11 +169,17 @@ func loadDedicatedHostReservedData(
 
 	for regionName, instanceData := range dedicatedHostReservedData.Regions {
 		for _, reservedPrice := range instanceData {
-			riTranslated, ok := RESERVED_TRANSLATIONS[reservedPrice.LeaseContractLength+reservedPrice.PurchaseOption]
-			if !ok {
-				utils.SendWarning("Dedicated host reserved data has unknown term", reservedPrice.LeaseContractLength, reservedPrice.PurchaseOption, "for", reservedPrice.InstanceType)
+			yearPtr := processYear(reservedPrice.LeaseContractLength)
+			if yearPtr == nil {
+				utils.SendWarning("Dedicated host reserved data has unknown year", reservedPrice.LeaseContractLength, "for", reservedPrice.InstanceType)
 				continue
 			}
+			purchaseOptionPtr := processPurchaseOption(reservedPrice.PurchaseOption)
+			if purchaseOptionPtr == nil {
+				utils.SendWarning("Dedicated host reserved data has unknown purchase option", reservedPrice.PurchaseOption, "for", reservedPrice.InstanceType)
+				continue
+			}
+			riTranslated := "yrTerm" + *yearPtr + "Standard." + *purchaseOptionPtr
 
 			regionSlug := regionsInverted[regionName]
 			if regionSlug == "" {
