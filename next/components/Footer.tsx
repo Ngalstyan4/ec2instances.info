@@ -32,19 +32,10 @@ export default function Footer() {
                         </a>
                     </span>
                     <form
-                        action="https://console.vantage.sh/signup"
+                        action="https://instances-api.vantage.sh/?utm_campaign=Instances%20Blog%20Clicks&utm_source=footer"
                         method="GET"
                         className="hidden md:flex gap-2"
                     >
-                        <div className="hidden md:block">
-                            <input
-                                className="px-3 py-2 border border-gray-3 rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-purple-1 focus:border-transparent"
-                                name="authentication_email"
-                                placeholder="Email"
-                                type="email"
-                                required
-                            />
-                        </div>
                         <div className="hidden md:block">
                             <Button variant="outline" size="sm">
                                 Get API Key
