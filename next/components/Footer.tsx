@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button";
+import TranslationFriendlyLink from "@/components/TranslationFriendlyLink";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function Footer() {
     return (
@@ -31,17 +32,18 @@ export default function Footer() {
                             Vantage
                         </a>
                     </span>
-                    <form
-                        action="https://instances-api.vantage.sh/?utm_campaign=Instances%20Blog%20Clicks&utm_source=footer"
-                        method="GET"
-                        className="hidden md:flex gap-2"
-                    >
-                        <div className="hidden md:block">
-                            <Button variant="outline" size="sm">
-                                Get API Key
-                            </Button>
-                        </div>
-                    </form>
+                    <div className="hidden md:block">
+                        <TranslationFriendlyLink
+                            href="https://instances-api.vantage.sh/?utm_campaign=Instances%20Blog%20Clicks&utm_source=footer"
+                            target="_blank"
+                            className={buttonVariants({
+                                variant: "outline",
+                                size: "sm",
+                            })}
+                        >
+                            Get API Key
+                        </TranslationFriendlyLink>
+                    </div>
                 </div>
             </div>
         </div>

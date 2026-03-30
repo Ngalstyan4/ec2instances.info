@@ -100,17 +100,11 @@ This will take ~30 minutes, and when it is done you will have a `www` folder wit
 
 The logic we use to do this (a mix of a scripted push to R2 and a small Cloudflare Worker) can be found in `deployment/index.ts` and `worker.js`.
 
-## API Access
-
-The data backing EC2Instances.info is available via a free API.
-
-- To get started, create a [free API key](https://docs.vantage.sh/api/authentication).
-- Review the `providers`, `services`, and `products` endpoints in the [API documentation](https://docs.vantage.sh/api/prices/get-all-products).
-
 ## Keep up-to-date
 
 Feel free to watch/star this repo as we're looking to update the site regularly. Vantage also works on the following relevant projects:
 
+- [vantage.sh/models](https://vantage.sh/models) - An open-source site for comparing LLM prices, specifications, benchmarks, and hosting information.
 - [cur.vantage.sh](https://cur.vantage.sh/) - Definitions of all AWS Cost and Usage Report (CUR) billing codes by service.
 - [The Cloud Cost Handbook](https://github.com/vantage-sh/handbook) - An
   open-source set of guides for best practices of managing cloud costs.
