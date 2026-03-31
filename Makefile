@@ -31,4 +31,4 @@ prettier:
 
 format: gofmt prettier
 
-all: fetch-data generate-images compress-www next write-updated-at
+all: fetch-data compress-www generate-images next write-updated-at
