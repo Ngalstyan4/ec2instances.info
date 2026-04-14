@@ -49,6 +49,7 @@ var GPU_DATA = map[string]gpuData{
 		gpuCount:          4,
 		gpuMemory:         16,
 	},
+	// g3 https://aws.amazon.com/blogs/aws/new-next-generation-gpu-powered-ec2-instances-g3/ */
 	"g3s.xlarge": {
 		gpuModel:          "NVIDIA Tesla M60",
 		computeCapability: 5.2,
@@ -73,6 +74,7 @@ var GPU_DATA = map[string]gpuData{
 		gpuCount:          4,
 		gpuMemory:         32,
 	},
+	// g4dn https://aws.amazon.com/blogs/aws/now-available-ec2-instances-g4-with-nvidia-t4-tensor-core-gpus/ */	
 	"g4dn.xlarge": {
 		gpuModel:          "NVIDIA T4 Tensor Core",
 		computeCapability: 7.5,
@@ -124,13 +126,13 @@ var GPU_DATA = map[string]gpuData{
 	"p2.8xlarge": {
 		gpuModel:          "NVIDIA Tesla K80",
 		computeCapability: 3.7,
-		gpuCount:          4,
+		gpuCount:          8,
 		gpuMemory:         96,
 	},
 	"p2.16xlarge": {
 		gpuModel:          "NVIDIA Tesla K80",
 		computeCapability: 3.7,
-		gpuCount:          8,
+		gpuCount:          16,
 		gpuMemory:         192,
 	},
 	"p3.2xlarge": {
