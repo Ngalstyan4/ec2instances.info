@@ -7,11 +7,23 @@
             "bucket_name": "ec2instances-assets-production",
             "binding": "ASSETS_BUCKET",
         },
+        {
+            "bucket_name": "ec2instances-narekg",
+            "binding": "ec2instances_narekg",
+        },
+        {
+            "bucket_name": "ec2instances-iops-data",
+            "binding": "ec2instances_iops_data",
+        },
     ],
     "kv_namespaces": [
         {
             "binding": "ASSETS_KV",
             "id": "33b0605d8d1e48bc9d92b2a3a2170f73",
+        },
+        {
+            "binding": "NAREKG_EDGE_CACHE",
+            "id": "4ef6f9c805e9427d8a41e0b55944ae6e",
         },
     ],
     "env": {
@@ -43,6 +55,27 @@
                 },
                 {
                     "pattern": "www.ec2instances.info",
+                    "custom_domain": true,
+                },
+            ],
+        },
+        "narekg": {
+            "name": "ec2instances-narekg-worker",
+            "r2_buckets": [
+                {
+                    "bucket_name": "ec2instances-narekg",
+                    "binding": "ASSETS_BUCKET",
+                },
+            ],
+            "kv_namespaces": [
+                {
+                    "binding": "ASSETS_KV",
+                    "id": "4ef6f9c805e9427d8a41e0b55944ae6e",
+                },
+            ],
+            "routes": [
+                {
+                    "pattern": "ec2instances.narekg.me",
                     "custom_domain": true,
                 },
             ],
