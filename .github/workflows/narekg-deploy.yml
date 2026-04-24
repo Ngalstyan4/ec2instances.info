@@ -67,3 +67,18 @@ jobs:
                   accountId: ${{ secrets.CF_ACCOUNT_ID }}
                   environment: narekg
                   wranglerVersion: "4.15.0"
+
+            - name: Purge Cloudflare cache
+              run: |
+                  RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+                    "https://api.cloudflare.com/client/v4/zones/${{ secrets.CF_ZONE_ID }}/purge_cache" \
+                    -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+                    -H "Content-Type: application/json" \
+                    --data '{"hosts":["ec2instances.narekg.me"]}')
+                  HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+                  BODY=$(echo "$RESPONSE" | sed '$d')
+                  echo "$BODY" | jq . 2>/dev/null || echo "$BODY"
+                  if [ "$HTTP_CODE" -ge 400 ]; then
+                    echo "::error::Cache purge failed with HTTP $HTTP_CODE"
+                    exit 1
+                  fi
