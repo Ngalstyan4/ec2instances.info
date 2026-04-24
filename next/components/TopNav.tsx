@@ -190,7 +190,7 @@ export default function TopNav() {
                             </span>
                             <TranslationToolDetector
                                 className="text-xs italic text-white"
-                                text="Presented by Vantage"
+                                text="Narek's fork with NVMe IOPS"
                             />
                         </div>
                     </div>
@@ -205,60 +205,18 @@ export default function TopNav() {
             </div>
             <div className="flex items-center justify-end gap-4 not-md:hidden overflow-hidden">
                 <TranslationFriendlyLink
-                    href="https://newsletters.vantage.sh/?utm_campaign=Instances%20Blog%20Clicks&utm_source=nav"
+                    href="https://github.com/vantage-sh/ec2instances.info/issues/476"
                     target="_blank"
                     className={buttonVariants({
                         variant: "outline",
                         size: "sm",
                     })}
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
-                        <rect x="2" y="4" width="20" height="16" rx="2" />
-                    </svg>
-                    Get Notified
+                    IOPS Issue #476
                 </TranslationFriendlyLink>
                 <TranslationFriendlyLink
-                    href="https://instances-mcp.vantage.sh/?utm_campaign=Instances%20Blog%20Clicks&utm_source=nav"
-                    className={buttonVariants({
-                        variant: "outline",
-                        size: "sm",
-                    })}
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="M12 20h9" />
-                        <path d="M12 4h9" />
-                        <path d="M4 4h.01" />
-                        <path d="M4 20h.01" />
-                        <path d="M4 12h.01" />
-                        <path d="M12 12h9" />
-                        <path d="M4 16h.01" />
-                        <path d="M4 8h.01" />
-                    </svg>
-                    MCP
-                </TranslationFriendlyLink>
-                <TranslationFriendlyLink
-                    href="https://github.com/vantage-sh/ec2instances.info"
+                    href="https://github.com/Ngalstyan4/ec2instances.info"
+                    target="_blank"
                     className={buttonVariants({
                         variant: "outline",
                         size: "sm",
@@ -283,7 +241,7 @@ export default function TopNav() {
                             </clipPath>
                         </defs>
                     </svg>
-                    Star
+                    Fork
                 </TranslationFriendlyLink>
             </div>
         </nav>
