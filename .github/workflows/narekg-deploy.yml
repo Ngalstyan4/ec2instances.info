@@ -42,6 +42,7 @@ jobs:
               run: cd next && npm ci && npm run build
               env:
                   NEXT_PUBLIC_URL: https://ec2instances.narekg.me/
+                  NEXT_PUBLIC_REMOVE_ADVERTS: "1"
 
             - name: Copy build output to www
               run: cp -a next/out/. www/
