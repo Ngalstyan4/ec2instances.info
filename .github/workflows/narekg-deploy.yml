@@ -50,7 +50,7 @@ jobs:
             # The DEPLOYMENT_CF_AWS_* vars are Cloudflare R2 tokens (not AWS).
             # R2 has an S3-compatible API so deployment/index.ts uses @aws-sdk/client-s3.
             - name: Deploy assets to R2 + KV
-              run: cd deployment && npm ci && npm run start
+              run: cd deployment && npm ci && NODE_OPTIONS="--max-old-space-size=8192" npm run start
               env:
                   DEPLOYMENT_CF_BUCKET: ec2instances-narekg
                   DEPLOYMENT_CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
