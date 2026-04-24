@@ -1,0 +1,68 @@
+name: Deploy to narekg.me
+concurrency: narekg-deploy
+on:
+    schedule:
+        - cron: "0 6 * * *"
+    push:
+        branches:
+            - main
+    workflow_dispatch: {}
+
+jobs:
+    build:
+        name: Build and Deploy
+        runs-on: ubuntu-latest
+        environment: narekg-production
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            # Download pre-built data (no cloud creds needed)
+            - name: Download pre-built data
+              run: curl -L https://instances.vantagestaging.sh/www_pre_build.tar.gz | tar -xzf -
+
+            - name: Install scraper dependencies
+              run: npm install @aws-sdk/client-s3
+
+            # Scrape IOPS from AWS docs, merge into instances.json, version in R2
+            # Fails the build if any fetch/parse/merge step fails
+            - name: Scrape and merge IOPS data
+              run: node scripts/scrape-iops.mjs
+              env:
+                  R2_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+                  R2_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+                  R2_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+                  R2_BUCKET_NAME: ec2instances-iops-data
+
+            # Build Next.js (npm run build calls init + llms + next build)
+            - name: Build frontend
+              run: cd next && npm ci && npm run build
+              env:
+                  NEXT_PUBLIC_URL: https://ec2instances.narekg.me/
+
+            - name: Copy build output to www
+              run: cp -a next/out/. www/
+
+            # Deploy static assets to R2 + KV
+            # The DEPLOYMENT_CF_AWS_* vars are Cloudflare R2 tokens (not AWS).
+            # R2 has an S3-compatible API so deployment/index.ts uses @aws-sdk/client-s3.
+            - name: Deploy assets to R2 + KV
+              run: cd deployment && npm ci && npm run start
+              env:
+                  DEPLOYMENT_CF_BUCKET: ec2instances-narekg
+                  DEPLOYMENT_CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+                  DEPLOYMENT_CF_AWS_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+                  DEPLOYMENT_CF_AWS_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+                  DEPLOYMENT_CF_API_KEY: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  DEPLOYMENT_CF_NAMESPACE: 4ef6f9c805e9427d8a41e0b55944ae6e
+
+            - name: Deploy worker
+              uses: cloudflare/wrangler-action@v3
+              with:
+                  apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  accountId: ${{ secrets.CF_ACCOUNT_ID }}
+                  environment: narekg
+                  wranglerVersion: "4.15.0"
