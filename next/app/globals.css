@@ -299,12 +299,12 @@ body {
     --gray-2: #5a5a5f;
     --gray-3: #e3e3e9;
     --gray-4: #f7f7f9;
-    /* Custom purple palette */
-    --purple-dark: #5536b1;
-    --purple-1: #6742d6;
-    --purple-2: #8f86f9;
-    --purple-3: #e5e5ff;
-    --purple-hover: #ececff;
+    /* Custom green palette (fork) */
+    --purple-dark: #15803d;
+    --purple-1: #16a34a;
+    --purple-2: #4ade80;
+    --purple-3: #dcfce7;
+    --purple-hover: #f0fdf4;
 
     --radius: 0.625rem;
     --background: oklch(1 0 0);
@@ -347,11 +347,11 @@ body {
         --gray-2: #a1a1aa;
         --gray-3: #3f3f46;
         --gray-4: #27272a;
-        /* Custom purple palette - adjusted for dark mode */
-        --purple-1: #b7a5ec;
-        --purple-2: #c4b5fd;
-        --purple-3: #2e1065;
-        --purple-hover: #3b1d7a;
+        /* Custom green palette - adjusted for dark mode (fork) */
+        --purple-1: #86efac;
+        --purple-2: #bbf7d0;
+        --purple-3: #052e16;
+        --purple-hover: #14532d;
 
         --background: oklch(0.145 0 0);
         --foreground: oklch(0.985 0 0);

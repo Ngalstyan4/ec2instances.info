@@ -9,9 +9,9 @@ import loadAdvertData from "@/utils/loadAdvertData";
 import loadCurrencies from "@/utils/loadCurrencies";
 
 export const metadata: Metadata = {
-    title: "Amazon EC2 Instance Comparison",
+    title: "EC2 Instance Comparison — Fork with NVMe Instance Store IOPS",
     description:
-        "A free and easy-to-use tool for comparing EC2 Instance features and prices.",
+        "A fork of Vantage's ec2instances.info adding NVMe instance store read/write IOPS columns. See github.com/vantage-sh/ec2instances.info/issues/476",
 };
 
 export default async function Home() {
